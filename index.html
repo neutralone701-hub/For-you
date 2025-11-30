@@ -2,80 +2,649 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Time Pass</title>
-<link rel="stylesheet" href="./style.css">
+<meta name="description" content="Time Pass — cute, playful mobile micro-entertainment." />
+<style>
+  :root{
+    --bg-1: #fff7fb;
+    --bg-2: #f6fbff;
+    --pink: #ffd6e8;
+    --lav: #e9ddff;
+    --blue: #d6f0ff;
+    --muted: #7b6f82;
+    --accent: #ff7ab6;
+    --glass: rgba(255,255,255,0.6);
+    --card-shadow: 0 8px 20px rgba(99,88,120,0.08);
+    --tap-scale: 0.96;
+    --radius: 18px;
+  }
+
+  /* Basic mobile layout */
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:#3b2f3f; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .app{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:18px;
+    box-sizing:border-box;
+    position:relative;
+    overflow:hidden;
+  }
+
+  header{
+    width:100%;
+    max-width:520px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+  }
+  .logo{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .logo .title{
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:0.2px;
+  }
+  .logo .sub{font-size:12px;color:var(--muted);}
+
+  /* Sparkle background dots */
+  .sparkles{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+  .sparkle{
+    position:absolute;
+    width:6px;height:6px;border-radius:50%;
+    background:linear-gradient(180deg,#fff,#ffd6e8);
+    opacity:0.6;
+    filter:blur(0.2px);
+    transform:translate3d(0,0,0);
+    animation: drift 8s linear infinite;
+  }
+  @keyframes drift{
+    from{transform:translateY(-10vh) scale(0.9); opacity:0.9;}
+    to{transform:translateY(110vh) scale(1.1); opacity:0.2;}
+  }
+
+  /* Floating hearts container */
+  .hearts{
+    position:absolute; inset:0; pointer-events:none; z-index:1;
+  }
+  .heart{
+    position:absolute;
+    font-size:18px;
+    opacity:0.9;
+    transform:translate3d(0,0,0);
+    animation: floatUp linear forwards;
+    filter:drop-shadow(0 6px 12px rgba(255,122,182,0.12));
+  }
+  @keyframes floatUp{
+    0%{transform:translateY(0) scale(0.9); opacity:0.95;}
+    100%{transform:translateY(-120vh) scale(1.1); opacity:0;}
+  }
+
+  /* Home card */
+  .card{
+    width:100%;
+    max-width:520px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+    border-radius:22px;
+    padding:14px;
+    box-shadow:var(--card-shadow);
+    z-index:2;
+    position:relative;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+
+  .btn{
+    background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-size:16px;
+    font-weight:700;
+    color:#3b2f3f;
+    box-shadow: 0 6px 18px rgba(99,88,120,0.06);
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action: manipulation;
+    transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms;
+  }
+
+  /* Tap bounce: applied via JS on touch */
+  .btn.tap-bounce{ animation: tapBounce 260ms cubic-bezier(.2,.9,.3,1); }
+  @keyframes tapBounce{
+    0%{transform:scale(1);}
+    40%{transform:scale(var(--tap-scale));}
+    100%{transform:scale(1);}
+  }
+
+  /* Wiggle animation for idle playfulness */
+  .wiggle{
+    animation: wiggle 3.6s ease-in-out infinite;
+    transform-origin:center;
+  }
+  @keyframes wiggle{
+    0%{transform:rotate(0deg);}
+    25%{transform:rotate(-2deg);}
+    50%{transform:rotate(0deg);}
+    75%{transform:rotate(2deg);}
+    100%{transform:rotate(0deg);}
+  }
+
+  /* Escape button special */
+  .escape-wrap{ position:relative; overflow:visible; }
+  .escape{
+    background:linear-gradient(180deg,#fff1f4,#ffe6ef);
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-weight:800;
+    color:#6b1f1f;
+    box-shadow: 0 10px 30px rgba(200,60,80,0.12);
+    transition: transform 300ms cubic-bezier(.2,.9,.3,1);
+    position:relative;
+    z-index:3;
+    touch-action: manipulation;
+  }
+
+  /* Page container for content pages */
+  .page{
+    display:none;
+    width:100%;
+    max-width:520px;
+    margin-top:12px;
+    z-index:2;
+  }
+  .page.active{ display:block; }
+
+  .content-card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+    border-radius:20px;
+    padding:16px;
+    box-shadow:var(--card-shadow);
+  }
+
+  .mascot{
+    width:72px;height:72px;border-radius:20px;background:linear-gradient(180deg,var(--pink),#fff);
+    display:flex;align-items:center;justify-content:center;font-size:34px;margin:8px auto;
+    box-shadow:0 8px 20px rgba(255,122,182,0.12);
+    transition: transform 260ms cubic-bezier(.2,.9,.3,1), filter 260ms;
+    touch-action: manipulation;
+  }
+  .mascot.shy{ transform:translateY(6px) scale(0.92) rotate(-6deg); filter:brightness(0.98) saturate(1.05); }
+
+  .line{
+    font-size:18px;
+    text-align:center;
+    padding:12px 8px;
+    min-height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#3b2f3f;
+  }
+
+  .next-btn{
+    margin-top:10px;
+    width:100%;
+    border-radius:14px;
+    padding:12px;
+    background:linear-gradient(90deg,var(--accent),#ffb3d6);
+    color:white;
+    font-weight:700;
+    font-size:16px;
+    box-shadow:0 8px 20px rgba(255,122,182,0.18);
+    touch-action: manipulation;
+  }
+
+  /* Popups */
+  .popup{
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    bottom:18px;
+    background:linear-gradient(180deg,#fff,#fff7fb);
+    padding:12px 14px;
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(60,40,80,0.08);
+    z-index:10;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    font-weight:600;
+    color:#3b2f3f;
+    opacity:0;
+    pointer-events:auto;
+    transition: transform 300ms cubic-bezier(.2,.9,.3,1), opacity 300ms;
+  }
+  .popup.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* small helper */
+  .muted{ color:var(--muted); font-size:13px; text-align:center; margin-top:8px; }
+
+  /* Accessibility: reduce motion */
+  @media (prefers-reduced-motion: reduce){
+    .wiggle, .sparkle, .heart, .btn.tap-bounce, .mascot{ animation:none !important; transition:none !important; }
+  }
+
+  /* Make everything large and tappable on small screens */
+  @media (max-width:420px){
+    .btn{ padding:16px; font-size:15px; border-radius:14px; }
+    .mascot{ width:64px;height:64px;font-size:30px; }
+  }
+</style>
 </head>
 <body>
-  <main class="app">
-    <header class="brand">
-      <h1>Time Pass</h1>
-      <p class="tag">Cute. Flirty. Silly. Pass the time with a smile ✨</p>
-    </header>
+<div class="app" id="app">
+  <div class="sparkles" id="sparkles"></div>
+  <div class="hearts" id="hearts"></div>
 
-    <!-- HOME -->
-    <section id="home" class="page active">
-      <div class="buttons-grid">
-        <button class="big-btn pastel" data-page="laugh">Make Me Laugh</button>
-        <button class="big-btn pastel" data-page="propose">Propose Me</button>
-        <button class="big-btn pastel" data-page="compliment">Compliment Me</button>
-        <button class="big-btn pastel" data-page="annoy">Annoy Me</button>
-        <button class="big-btn pastel" data-page="impress">Impress Me</button>
+  <header>
+    <div class="logo">
+      <div style="font-size:28px;">⏳💖</div>
+      <div>
+        <div class="title">Time Pass</div>
+        <div class="sub">Cute micro-entertainment for bored thumbs</div>
       </div>
+    </div>
+    <div style="font-size:14px;color:var(--muted)">Tap-only fun</div>
+  </header>
+
+  <!-- HOME -->
+  <div class="card" id="homeCard">
+    <div class="grid">
+      <div class="btn wiggle" data-action="laugh" role="button" aria-label="Make Me Laugh" tabindex="0">😂 Make Me Laugh</div>
+      <div class="btn wiggle" data-action="propose" role="button" aria-label="Propose Me" tabindex="0">💍 Propose Me</div>
+      <div class="btn wiggle" data-action="compliment" role="button" aria-label="Compliment Me" tabindex="0">😌 Compliment Me</div>
+      <div class="btn wiggle" data-action="annoy" role="button" aria-label="Annoy Me" tabindex="0">😈 Annoy Me</div>
+      <div class="btn wiggle" data-action="impress" role="button" aria-label="Impress Me" tabindex="0">🧠✨ Impress Me</div>
 
       <div class="escape-wrap">
-        <button id="escapeBtn" class="escape-btn">I Hate You 💢</button>
+        <div class="escape" id="escapeBtn" role="button" aria-label="I Hate You" tabindex="0">💢 I Hate You</div>
       </div>
+    </div>
+    <div class="muted">Tap a button to start — enjoy tiny surprises ✨</div>
+  </div>
 
-      <div class="floating-emoji">💖</div>
-    </section>
+  <!-- PAGES -->
+  <div class="page" id="pageLaugh">
+    <div class="content-card">
+      <div class="mascot" id="mascotLaugh">😺</div>
+      <div class="line" id="lineLaugh">Tap Next ❤️ to see a joke</div>
+      <button class="next-btn" id="nextLaugh">Next ❤️</button>
+    </div>
+  </div>
 
-    <!-- SECTION TEMPLATE -->
-    <section id="section" class="page">
-      <div class="card">
-        <div class="card-header">
-          <h2 id="sectionTitle">Section</h2>
-          <button id="backBtn" class="small ghost">← Home</button>
-        </div>
+  <div class="page" id="pagePropose">
+    <div class="content-card">
+      <div class="mascot" id="mascotPropose">💖</div>
+      <div class="line" id="linePropose">Tap Next ❤️ for a proposal line</div>
+      <button class="next-btn" id="nextPropose">Next ❤️</button>
+    </div>
+  </div>
 
-        <div class="line-area">
-          <div id="lineText" class="line-text">Cute line goes here</div>
-          <div class="controls">
-            <button id="prevLine" class="small">Prev</button>
-            <button id="nextLine" class="small">Next</button>
-            <button id="randomLine" class="small">Surprise ✨</button>
-          </div>
-        </div>
+  <div class="page" id="pageCompliment">
+    <div class="content-card">
+      <div class="mascot" id="mascotCompliment">🌸</div>
+      <div class="line" id="lineCompliment">Tap Next ❤️ for a compliment</div>
+      <button class="next-btn" id="nextCompliment">Next ❤️</button>
+    </div>
+  </div>
 
-        <hr />
+  <div class="page" id="pageAnnoy">
+    <div class="content-card">
+      <div class="mascot" id="mascotAnnoy">😼</div>
+      <div class="line" id="lineAnnoy">Tap Next ❤️ for a cheeky jab</div>
+      <button class="next-btn" id="nextAnnoy">Next ❤️</button>
+    </div>
+  </div>
 
-        <div id="questionsArea" class="questions-area">
-          <!-- Questions injected here -->
-        </div>
+  <div class="page" id="pageImpress">
+    <div class="content-card">
+      <div class="mascot" id="mascotImpress">🧠</div>
+      <div class="line" id="lineImpress">Tap Next ❤️ for a brainy flex</div>
+      <button class="next-btn" id="nextImpress">Next ❤️</button>
+    </div>
+  </div>
 
-      </div>
-    </section>
+  <!-- Popup container -->
+  <div id="popup" class="popup" role="status" aria-live="polite" style="display:none;">
+    <div id="popupText">Don't lie... you smiled 😏✨</div>
+  </div>
+</div>
 
-    <!-- ADMIN (hidden route) -->
-    <section id="admin" class="page">
-      <div class="card">
-        <h2>Admin — Responses</h2>
-        <div id="adminAuth">
-          <input id="adminPass" type="password" placeholder="Enter admin password" />
-          <button id="adminLogin" class="small">Unlock</button>
-        </div>
-        <div id="adminTableWrap" style="display:none">
-          <input id="adminSearch" placeholder="Search page, question, answer..." />
-          <table id="adminTable">
-            <thead><tr><th>Time</th><th>Page</th><th>Question</th><th>Answer</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+<script>
+/* ====== Data: lines for each page (10-15 each) ====== */
+const LINES = {
+  laugh: [
+    "Why don’t scientists trust atoms? Because they make up everything 😂",
+    "I told my phone a joke — it cracked up and needed a screen protector.",
+    "You’re the reason I check my phone and smile like a goof.",
+    "If laughter is the best medicine, consider this your daily dose 💊😄",
+    "I’d tell you a construction joke, but I’m still working on it.",
+    "You must be a magician — every time I look at you, everyone else disappears.",
+    "I tried to be normal once. Worst two minutes ever.",
+    "You’re like a software update — unexpected, but somehow better.",
+    "I’m on a seafood diet. I see food and I laugh.",
+    "If giggles were currency, you’d be a billionaire."
+  ],
+  propose: [
+    "Will you be the reason I delete my dating apps? 💍",
+    "I promise to share my fries and my last slice of cake with you.",
+    "Marry me? I’ll let you pick the playlist for life.",
+    "I can’t promise to fix all your problems, but I’ll be there to make you laugh.",
+    "You + me = best inside joke ever.",
+    "I’ll be your emergency contact and your favorite notification.",
+    "Let’s make it official: you, me, and a lifetime of silly selfies.",
+    "I vow to always steal the blanket and then apologize with coffee.",
+    "Say yes and I’ll let you win at board games sometimes.",
+    "If you’re the moon, I’ll be your slightly confused but devoted tide."
+  ],
+  compliment: [
+    "You have the kind of smile that makes the sun jealous.",
+    "Your laugh should be bottled and sold as happiness.",
+    "You’re the human version of a warm hug.",
+    "Brains, charm, and a killer playlist — you’re stacked.",
+    "You make ordinary moments feel like confetti.",
+    "If kindness were a superpower, you’d be unstoppable.",
+    "You glow in pastel colors and sparkles.",
+    "Your vibe is my favorite aesthetic.",
+    "You’re proof that good things come in small, delightful packages.",
+    "You’re the plot twist I didn’t know I needed."
+  ],
+  annoy: [
+    "If being adorable was a crime, you’d be serving life.",
+    "I’d roast you but I’d rather compliment you and confuse you.",
+    "You’re like a pop-up ad — impossible to ignore.",
+    "Stop being so interesting, it’s distracting.",
+    "You’re the reason I check my phone during movies.",
+    "I’d call you dramatic, but you’re just extra in the best way.",
+    "You’re the human version of a double-tap.",
+    "Please stop being perfect; it’s making the rest of us look bad.",
+    "You’re the reason my notifications have trust issues.",
+    "I’ll annoy you until you laugh — it’s a public service."
+  ],
+  impress: [
+    "You know more random facts than Wikipedia on a good day.",
+    "Your brain is a five-star hotel for ideas.",
+    "You solve problems like a tiny, charming superhero.",
+    "You make complexity look like a cute puzzle.",
+    "Your curiosity is contagious — in a good way.",
+    "You could teach a masterclass on being effortlessly clever.",
+    "You’re the kind of person who reads the terms and still smiles.",
+    "Your thoughts have a VIP pass to my attention.",
+    "You’re quietly brilliant and loudly kind.",
+    "You make learning feel like a cozy hobby."
+  ]
+};
 
-  </main>
+/* ====== Helpers ====== */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-<script src="./app.jss"></script>
+/* ====== Sparkles generation ====== */
+function makeSparkles(count=18){
+  const container = $('#sparkles');
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className='sparkle';
+    s.style.left = Math.random()*100 + '%';
+    s.style.top = Math.random()*100 + '%';
+    s.style.width = (4 + Math.random()*8) + 'px';
+    s.style.height = s.style.width;
+    s.style.animationDuration = (6 + Math.random()*8) + 's';
+    s.style.opacity = 0.6 + Math.random()*0.4;
+    container.appendChild(s);
+  }
+}
+makeSparkles();
+
+/* ====== Floating hearts periodically ====== */
+function spawnHeart(){
+  const container = $('#hearts');
+  const heart = document.createElement('div');
+  heart.className='heart';
+  heart.textContent = ['💖','💗','💕','💞'][Math.floor(Math.random()*4)];
+  const size = 14 + Math.random()*18;
+  heart.style.fontSize = size + 'px';
+  heart.style.left = (10 + Math.random()*80) + '%';
+  heart.style.bottom = '-10px';
+  heart.style.animationDuration = (4 + Math.random()*6) + 's';
+  heart.style.opacity = 0.95;
+  container.appendChild(heart);
+  setTimeout(()=> heart.remove(), 12000);
+}
+setInterval(spawnHeart, 900);
+
+/* ====== Page navigation and button tap animations ====== */
+const homeCard = $('#homeCard');
+const pages = {
+  laugh: $('#pageLaugh'),
+  propose: $('#pagePropose'),
+  compliment: $('#pageCompliment'),
+  annoy: $('#pageAnnoy'),
+  impress: $('#pageImpress')
+};
+
+function showPage(name){
+  // hide home and other pages
+  homeCard.style.display = 'none';
+  Object.values(pages).forEach(p => p.classList.remove('active'));
+  pages[name].classList.add('active');
+  // reset index for that page
+  currentIndex[name] = 0;
+  showLine(name);
+}
+
+/* Tap bounce helper */
+function tapBounce(el){
+  el.classList.remove('tap-bounce');
+  // force reflow
+  void el.offsetWidth;
+  el.classList.add('tap-bounce');
+  setTimeout(()=> el.classList.remove('tap-bounce'), 350);
+}
+
+/* Attach home buttons */
+$$('.btn').forEach(btn=>{
+  btn.addEventListener('touchstart', (e)=>{
+    e.preventDefault();
+    tapBounce(btn);
+  }, {passive:false});
+  btn.addEventListener('click', (e)=>{
+    const action = btn.dataset.action;
+    if(action) showPage(action);
+  });
+});
+
+/* ====== Escape-tap button behavior ====== */
+const escapeBtn = $('#escapeBtn');
+let escapeCooldown = false;
+function moveEscapeRandom(){
+  const wrap = escapeBtn.parentElement;
+  const maxX = wrap.clientWidth - escapeBtn.clientWidth;
+  const maxY = 0; // keep same row
+  const x = Math.random()*maxX;
+  escapeBtn.style.transform = `translateX(${x}px) translateY(0) rotate(${(Math.random()*20-10)}deg)`;
+  // tiny wiggle
+  escapeBtn.animate([{transform:escapeBtn.style.transform},{transform:escapeBtn.style.transform + ' translateY(-6px)'},{transform:escapeBtn.style.transform}], {duration:420, easing:'ease-out'});
+}
+escapeBtn.addEventListener('touchstart', (e)=>{
+  e.preventDefault();
+  // move away quickly
+  if(!escapeCooldown){
+    moveEscapeRandom();
+    escapeCooldown = true;
+    setTimeout(()=> escapeCooldown = false, 420);
+  }
+}, {passive:false});
+escapeBtn.addEventListener('click', (e)=>{
+  // playful reaction if somehow clicked
+  tapBounce(escapeBtn);
+});
+
+/* ====== Lines display logic (one-by-one) ====== */
+const currentIndex = { laugh:0, propose:0, compliment:0, annoy:0, impress:0 };
+
+function showLine(page){
+  const idx = currentIndex[page];
+  const arr = LINES[page];
+  const lineEl = $(`#line${capitalize(page)}`);
+  if(!arr || !lineEl) return;
+  // animate text in
+  lineEl.style.opacity = 0;
+  setTimeout(()=> {
+    lineEl.textContent = arr[idx % arr.length];
+    lineEl.style.transition = 'opacity 260ms';
+    lineEl.style.opacity = 1;
+  }, 120);
+}
+
+function nextLine(page){
+  currentIndex[page] = (currentIndex[page] + 1) % LINES[page].length;
+  showLine(page);
+}
+
+/* Hook next buttons */
+$('#nextLaugh').addEventListener('touchstart', (e)=>{ e.preventDefault(); tapBounce(e.target); }, {passive:false});
+$('#nextLaugh').addEventListener('click', ()=> nextLine('laugh'));
+$('#nextPropose').addEventListener('touchstart', (e)=>{ e.preventDefault(); tapBounce(e.target); }, {passive:false});
+$('#nextPropose').addEventListener('click', ()=> nextLine('propose'));
+$('#nextCompliment').addEventListener('touchstart', (e)=>{ e.preventDefault(); tapBounce(e.target); }, {passive:false});
+$('#nextCompliment').addEventListener('click', ()=> nextLine('compliment'));
+$('#nextAnnoy').addEventListener('touchstart', (e)=>{ e.preventDefault(); tapBounce(e.target); }, {passive:false});
+$('#nextAnnoy').addEventListener('click', ()=> nextLine('annoy'));
+$('#nextImpress').addEventListener('touchstart', (e)=>{ e.preventDefault(); tapBounce(e.target); }, {passive:false});
+$('#nextImpress').addEventListener('click', ()=> nextLine('impress'));
+
+/* Capitalize helper */
+function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+/* ====== Mascot reactions: gets shy when tapped ====== */
+['mascotLaugh','mascotPropose','mascotCompliment','mascotAnnoy','mascotImpress'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('touchstart', (e)=>{
+    e.preventDefault();
+    el.classList.add('shy');
+    setTimeout(()=> el.classList.remove('shy'), 900);
+  }, {passive:false});
+  el.addEventListener('click', ()=>{
+    el.classList.add('shy');
+    setTimeout(()=> el.classList.remove('shy'), 900);
+  });
+});
+
+/* ====== Auto popups every 15s and random popups ====== */
+const popup = $('#popup');
+const popupText = $('#popupText');
+
+function showPopup(text, duration=2800){
+  popupText.textContent = text;
+  popup.style.display = 'flex';
+  // small delay to allow transition
+  setTimeout(()=> popup.classList.add('show'), 20);
+  setTimeout(()=> {
+    popup.classList.remove('show');
+    setTimeout(()=> popup.style.display = 'none', 320);
+  }, duration);
+}
+
+/* Always show the "Don't lie... you smiled" every 15s */
+setInterval(()=> showPopup("Don't lie... you smiled 😏✨", 2600), 15000);
+
+/* Random popups occasionally */
+const randomPopups = [
+  "You’re still here? Guess you like me 😌",
+  "Tap here if you secretly like attention 👀",
+  "Psst... double-tap the mascot for extra shy vibes 💕",
+  "Tiny challenge: try not to smile for 3 seconds... fail guaranteed 😄"
+];
+setInterval(()=>{
+  if(Math.random() < 0.45) {
+    const text = randomPopups[Math.floor(Math.random()*randomPopups.length)];
+    showPopup(text, 3000);
+  }
+}, 12000 + Math.random()*8000);
+
+/* Make popup tappable to dismiss and react */
+popup.addEventListener('touchstart', (e)=>{ e.preventDefault(); popup.classList.remove('show'); setTimeout(()=> popup.style.display='none',200); }, {passive:false});
+popup.addEventListener('click', ()=> { popup.classList.remove('show'); setTimeout(()=> popup.style.display='none',200); });
+
+/* ====== Back to home on swipe down or tapping header (simple) ====== */
+let startY = null;
+document.addEventListener('touchstart', (e)=> { if(e.touches && e.touches[0]) startY = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', (e)=> {
+  if(!startY) return;
+  const endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : null;
+  if(endY && (endY - startY) > 120) {
+    // swipe down -> go home
+    goHome();
+  }
+  startY = null;
+}, {passive:true});
+
+function goHome(){
+  Object.values(pages).forEach(p => p.classList.remove('active'));
+  homeCard.style.display = 'block';
+}
+
+/* Also allow tapping the logo to go home */
+document.querySelector('.logo').addEventListener('click', goHome);
+
+/* ====== Initialize first lines and small entrance animations ====== */
+Object.keys(LINES).forEach(k => {
+  const el = $(`#line${capitalize(k)}`);
+  if(el) el.textContent = "Tap Next ❤️ to start";
+});
+
+/* Small micro-animation: gentle entrance for home buttons */
+setTimeout(()=> {
+  $$('.btn').forEach((b,i)=> {
+    b.style.transform = 'translateY(6px)';
+    b.style.opacity = 0;
+    setTimeout(()=> { b.style.transition = 'transform 420ms, opacity 420ms'; b.style.transform='translateY(0)'; b.style.opacity=1; }, i*80);
+  });
+}, 220);
+
+/* Prevent accidental text selection on long press */
+document.addEventListener('selectstart', e => e.preventDefault());
+
+/* Friendly hint: when user opens a page, show first line */
+Object.values(pages).forEach(p => {
+  p.addEventListener('transitionend', ()=> {});
+});
+
+/* Accessibility: keyboard support for Enter on buttons (for emulators) */
+$$('.btn, .escape, .next-btn').forEach(el=>{
+  el.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+  });
+});
+
+/* End of script */
+</script>
 </body>
 </html>
