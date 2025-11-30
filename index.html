@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Time Pass</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="brand">
+      <h1>Time Pass</h1>
+      <p class="tag">Cute. Flirty. Silly. Pass the time with a smile ✨</p>
+    </header>
+
+    <!-- HOME -->
+    <section id="home" class="page active">
+      <div class="buttons-grid">
+        <button class="big-btn pastel" data-page="laugh">Make Me Laugh</button>
+        <button class="big-btn pastel" data-page="propose">Propose Me</button>
+        <button class="big-btn pastel" data-page="compliment">Compliment Me</button>
+        <button class="big-btn pastel" data-page="annoy">Annoy Me</button>
+        <button class="big-btn pastel" data-page="impress">Impress Me</button>
+      </div>
+
+      <div class="escape-wrap">
+        <button id="escapeBtn" class="escape-btn">I Hate You 💢</button>
+      </div>
+
+      <div class="floating-emoji">💖</div>
+    </section>
+
+    <!-- SECTION TEMPLATE -->
+    <section id="section" class="page">
+      <div class="card">
+        <div class="card-header">
+          <h2 id="sectionTitle">Section</h2>
+          <button id="backBtn" class="small ghost">← Home</button>
+        </div>
+
+        <div class="line-area">
+          <div id="lineText" class="line-text">Cute line goes here</div>
+          <div class="controls">
+            <button id="prevLine" class="small">Prev</button>
+            <button id="nextLine" class="small">Next</button>
+            <button id="randomLine" class="small">Surprise ✨</button>
+          </div>
+        </div>
+
+        <hr />
+
+        <div id="questionsArea" class="questions-area">
+          <!-- Questions injected here -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ADMIN (hidden route) -->
+    <section id="admin" class="page">
+      <div class="card">
+        <h2>Admin — Responses</h2>
+        <div id="adminAuth">
+          <input id="adminPass" type="password" placeholder="Enter admin password" />
+          <button id="adminLogin" class="small">Unlock</button>
+        </div>
+        <div id="adminTableWrap" style="display:none">
+          <input id="adminSearch" placeholder="Search page, question, answer..." />
+          <table id="adminTable">
+            <thead><tr><th>Time</th><th>Page</th><th>Question</th><th>Answer</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+<script src="./app.jss"></script>
+</body>
+</html>

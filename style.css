@@ -1,0 +1,134 @@
+:root{
+  --bg:#ffffff;
+  --card:#fff;
+  --mint:#c8f7e8;
+  --blush:#ffd6e0;
+  --lav:#e9d7ff;
+  --blue:#d7ecff;
+  --shadow: 0 6px 18px rgba(30,30,60,0.06);
+  --radius:16px;
+  --accent:#ff7ab6;
+  --muted:#8b8b9a;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background: linear-gradient(180deg, #fffafc 0%, #f7fbff 100%);
+  color:#222;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+}
+
+.app{width:100%;max-width:980px}
+
+.brand{text-align:center;margin-bottom:18px}
+.brand h1{font-size:36px;margin:0;color:var(--accent);letter-spacing:1px}
+.brand .tag{color:var(--muted);margin-top:6px}
+
+.page{display:none}
+.page.active{display:block}
+
+.buttons-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.big-btn{
+  padding:22px;
+  border-radius:28px;
+  border:none;
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:transform .18s ease, box-shadow .18s;
+  position:relative;
+}
+.big-btn:hover{transform:translateY(-6px) scale(1.02)}
+.big-btn.pastel:nth-child(1){background:linear-gradient(135deg,var(--mint),#e6fff7)}
+.big-btn.pastel:nth-child(2){background:linear-gradient(135deg,var(--blush),#fff0f6)}
+.big-btn.pastel:nth-child(3){background:linear-gradient(135deg,var(--lav),#f6f0ff)}
+.big-btn.pastel:nth-child(4){background:linear-gradient(135deg,var(--blue),#f0fbff)}
+.big-btn.pastel:nth-child(5){background:linear-gradient(135deg,#fff7d9,#fff0d6)}
+
+.escape-wrap{margin-top:12px;text-align:center}
+.escape-btn{
+  background:#fff6f6;border-radius:20px;padding:10px 16px;border:1px solid #ffd6d6;cursor:pointer;
+  transition:transform .12s;
+  box-shadow:var(--shadow);
+}
+.escape-btn:hover{transform:translateY(-4px)}
+
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.small{padding:8px 10px;border-radius:12px;border:none;background:#fff;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.04)}
+.small.ghost{background:transparent;color:var(--muted)}
+
+.line-area{display:flex;flex-direction:column;gap:10px;align-items:center}
+.line-text{
+  font-size:20px;
+  padding:18px;
+  border-radius:12px;
+  background:linear-gradient(90deg,#fff,#fffafc);
+  width:100%;
+  text-align:center;
+  min-height:64px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 -6px 18px rgba(0,0,0,0.02);
+}
+
+.controls{display:flex;gap:8px}
+
+.questions-area{margin-top:12px;display:grid;gap:10px}
+.question{
+  display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:12px;background:linear-gradient(180deg,#fff,#fffdfb);
+  box-shadow:0 6px 14px rgba(0,0,0,0.03)
+}
+.question input[type="text"], .question textarea{
+  padding:10px;border-radius:10px;border:1px solid #f0e9ff;background:#fff;
+  outline:none;font-size:14px;
+}
+.question .submit{
+  align-self:flex-end;padding:8px 12px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;
+  box-shadow:0 6px 12px rgba(255,122,182,0.12)
+}
+
+/* floating emoji & sparkles */
+.floating-emoji{
+  position:fixed;right:28px;bottom:28px;font-size:28px;opacity:.9;animation:float 6s ease-in-out infinite;
+}
+@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-12px)}100%{transform:translateY(0)}}
+
+/* micro animations */
+.bounce{animation:bounce .9s ease}
+@keyframes bounce{0%{transform:translateY(0)}30%{transform:translateY(-8px)}60%{transform:translateY(0)}100%{transform:translateY(0)}}
+.wiggle{animation:wiggle .6s ease}
+@keyframes wiggle{0%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}100%{transform:rotate(0)}}
+.sparkle::after{
+  content:"✨";position:absolute;right:8px;top:8px;font-size:12px;opacity:.9;transform:rotate(-10deg)
+}
+
+/* admin table */
+#adminTable{width:100%;border-collapse:collapse}
+#adminTable th,#adminTable td{padding:8px;border-bottom:1px solid #f2f2f6;text-align:left;font-size:13px}
+#adminSearch{width:100%;padding:8px;border-radius:10px;margin-bottom:8px;border:1px solid #eee}
+
+/* responsive */
+@media (max-width:640px){
+  .buttons-grid{grid-template-columns:1fr}
+  .brand h1{font-size:28px}
+}
